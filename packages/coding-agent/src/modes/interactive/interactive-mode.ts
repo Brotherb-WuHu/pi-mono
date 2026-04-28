@@ -86,6 +86,7 @@ import { parseGitUrl } from "../../utils/git.js";
 import { getPiUserAgent } from "../../utils/pi-user-agent.js";
 import { killTrackedDetachedChildren } from "../../utils/shell.js";
 import { ensureTool } from "../../utils/tools-manager.js";
+import { checkForNewPiVersion } from "../../utils/version-check.js";
 import { ArminComponent } from "./components/armin.js";
 import { AssistantMessageComponent } from "./components/assistant-message.js";
 import { BashExecutionComponent } from "./components/bash-execution.js";
@@ -784,29 +785,7 @@ export class InteractiveMode {
 	 * Check pi.dev for a newer version.
 	 */
 	private async checkForNewVersion(): Promise<string | undefined> {
-		if (process.env.PI_SKIP_VERSION_CHECK || process.env.PI_OFFLINE) return undefined;
-
-		try {
-			const response = await fetch("https://pi.dev/api/latest-version", {
-				headers: {
-					"User-Agent": getPiUserAgent(this.version),
-					accept: "application/json",
-				},
-				signal: AbortSignal.timeout(10000),
-			});
-			if (!response.ok) return undefined;
-
-			const data = (await response.json()) as { version?: string };
-			const latestVersion = data.version;
-
-			if (latestVersion && latestVersion !== this.version) {
-				return latestVersion;
-			}
-
-			return undefined;
-		} catch {
-			return undefined;
-		}
+		return checkForNewPiVersion(this.version);
 	}
 
 	private async checkForPackageUpdates(): Promise<string[]> {
