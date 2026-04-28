@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Changed startup and package update version checks to identify Pi with a `pi/<version>` user agent.
+
 ## [0.70.5] - 2026-04-27
 
 ### Fixed

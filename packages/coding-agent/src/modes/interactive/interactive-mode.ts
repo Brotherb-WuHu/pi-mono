@@ -83,6 +83,7 @@ import { getChangelogPath, getNewEntries, parseChangelog } from "../../utils/cha
 import { copyToClipboard } from "../../utils/clipboard.js";
 import { extensionForImageMimeType, readClipboardImage } from "../../utils/clipboard-image.js";
 import { parseGitUrl } from "../../utils/git.js";
+import { getPiUserAgent } from "../../utils/pi-user-agent.js";
 import { killTrackedDetachedChildren } from "../../utils/shell.js";
 import { ensureTool } from "../../utils/tools-manager.js";
 import { ArminComponent } from "./components/armin.js";
@@ -779,13 +780,17 @@ export class InteractiveMode {
 	}
 
 	/**
-	 * Check npm registry for a newer version.
+	 * Check pi.dev for a newer version.
 	 */
 	private async checkForNewVersion(): Promise<string | undefined> {
 		if (process.env.PI_SKIP_VERSION_CHECK || process.env.PI_OFFLINE) return undefined;
 
 		try {
-			const response = await fetch("https://registry.npmjs.org/@mariozechner/pi-coding-agent/latest", {
+			const response = await fetch("https://pi.dev/api/latest-version", {
+				headers: {
+					"User-Agent": getPiUserAgent(this.version),
+					accept: "application/json",
+				},
 				signal: AbortSignal.timeout(10000),
 			});
 			if (!response.ok) return undefined;
@@ -908,7 +913,10 @@ export class InteractiveMode {
 			return;
 		}
 
-		void fetch(`https://pi.dev/install?version=${encodeURIComponent(version)}`, {
+		void fetch(`https://pi.dev/api/report-install?version=${encodeURIComponent(version)}`, {
+			headers: {
+				"User-Agent": getPiUserAgent(version),
+			},
 			signal: AbortSignal.timeout(5000),
 		})
 			.then(() => undefined)
