@@ -710,7 +710,7 @@ export class InteractiveMode {
 		await this.init();
 
 		// Start version check asynchronously
-		this.checkForNewVersion().then((newVersion) => {
+		checkForNewPiVersion(this.version).then((newVersion) => {
 			if (newVersion) {
 				this.showNewVersionNotification(newVersion);
 			}
@@ -779,13 +779,6 @@ export class InteractiveMode {
 				this.showError(errorMessage);
 			}
 		}
-	}
-
-	/**
-	 * Check pi.dev for a newer version.
-	 */
-	private async checkForNewVersion(): Promise<string | undefined> {
-		return checkForNewPiVersion(this.version);
 	}
 
 	private async checkForPackageUpdates(): Promise<string[]> {
