@@ -172,7 +172,9 @@ export class AgentInterface extends LitElement {
 						this._streamingContainer.isStreaming = false;
 						this._streamingContainer.setMessage(null, true);
 					}
-					this.requestUpdate();
+					// Defer requestUpdate so finishRun() runs first and resets isStreaming
+					// Without this, Lit reads isStreaming=true before finishRun sets it to false
+					setTimeout(() => this.requestUpdate(), 0);
 					break;
 				case "message_update":
 					if (this._streamingContainer) {
@@ -276,7 +278,7 @@ export class AgentInterface extends LitElement {
 			<div class="flex flex-col gap-3">
 				<!-- Stable messages list - won't re-render during streaming -->
 				<message-list
-					.messages=${this.session.state.messages}
+					.messages=${[...this.session.state.messages]}
 					.tools=${state.tools}
 					.pendingToolCalls=${this.session ? this.session.state.pendingToolCalls : new Set<string>()}
 					.isStreaming=${state.isStreaming}
